@@ -247,8 +247,8 @@ void autonomous(void) {
     //start spinning the Ring motor
     Ring.spin(forward);
     
-    //Setting the drive speed to 60 percent of the max
-    Drivetrain.setDriveVelocity(60, percent);
+    //Setting the drive speed to 75% of the max
+    Drivetrain.setDriveVelocity(75, percent);
     
     //turn 90 degrees left
     Drivetrain.turnFor(-90, degrees);
@@ -292,8 +292,8 @@ void autonomous(void) {
     //start spinning the Ring motor
     Ring.spin(forward);
 
-    //set the drive speed to 60% of its total
-    Drivetrain.setDriveVelocity(60, percent);
+    //set the drive speed to 75% of its total
+    Drivetrain.setDriveVelocity(75, percent);
 
     //drive forward 12 inches
     Drivetrain.driveFor(forward, 12, inches);
