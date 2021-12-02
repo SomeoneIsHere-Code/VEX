@@ -244,27 +244,32 @@ void autonomous(void) {
     //raise front lift to golden angle
     Back_Lift.spinTo(143, degrees, true);
 
-    //set the ring motor velocity to max
-    Ring.setVelocity(100, percent);
-
     //start spinning the Ring motor
     Ring.spin(forward);
+    
+    //Setting the drive speed to 60 percent of the max
+    Drivetrain.setDriveVelocity(60, percent);
     
     //turn 90 degrees left
     Drivetrain.turnFor(-90, degrees);
 
-    //drive forward 6 inches
+    //drive forward 24 inches
     Drivetrain.driveFor(reverse, 24, inches);
 
-    //rotate 90 degrees right
+    //rotate 88 degrees right
     Drivetrain.turnFor(-88, degrees);
 
+    //lower the front lift to grabbing position
     Front_Lift.spinTo(460, degrees);
 
     //drive forward 12 inches
     Drivetrain.driveFor(forward, 36, inches);
 
+    //raise front lift to golden angle
     Front_Lift.spinTo(143, degrees);
+    
+    //max out the drive speed
+    Drivetrain.setDriveVelocity(100, percent);
 
     //drive reverse 36 inches (return to start)
     Drivetrain.driveFor(reverse, 48, inches);
@@ -317,11 +322,13 @@ void autonomous(void) {
     //turn 20 degrees left (back to perpendicular with the home zone)
     Drivetrain.turnFor(-20, degrees); 
 
-    //drive 38 inches backwards (into the home zone)
-    Drivetrain.driveFor(reverse, 38, inches);
-
-    //preping for driver control
+    //max out drive speed
     Drivetrain.setDriveVelocity(100, percent);
+
+    //drive 38 inches backwards (into the home zone)
+    Drivetrain.driveFor(reverse, 48, inches);
+
+
   }  
 
 }
