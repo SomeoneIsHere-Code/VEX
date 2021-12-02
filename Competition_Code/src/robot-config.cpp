@@ -31,6 +31,12 @@ bool Controller1UpDownButtonsControlMotorsStopped = true;
 bool Controller1XBbuttonControlMotorsStopped = true;
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
 bool DrivetrainRNeedsToBeStopped_Controller1 = true;
+int YINT = 0;
+void YPRESS (){
+  YINT = 1;
+
+
+}
 
 // define a task that will handle monitoring inputs from Controller1
 int rc_auto_loop_function_Controller1() {
@@ -44,6 +50,25 @@ int rc_auto_loop_function_Controller1() {
       int drivetrainLeftSideSpeed = Controller1.Axis3.position();
       int drivetrainRightSideSpeed = Controller1.Axis2.position();
       
+      if(YINT==1){
+        drivetrainLeftSideSpeed = drivetrainLeftSideSpeed /2;
+        drivetrainRightSideSpeed = drivetrainRightSideSpeed /2;
+        
+        leftMotorA.setBrake(hold);
+        leftMotorB.setBrake(hold);
+        rightMotorA.setBrake(hold);
+        rightMotorB.setBrake(hold);
+      } else {
+        drivetrainLeftSideSpeed = Controller1.Axis3.position();
+        drivetrainRightSideSpeed = Controller1.Axis2.position();
+        
+        leftMotorA.setBrake(coast);
+        leftMotorB.setBrake(coast);
+        rightMotorA.setBrake(coast);
+        rightMotorB.setBrake(coast);
+
+      }
+
       // check if the value is inside of the deadband range
       if (drivetrainLeftSideSpeed < 5 && drivetrainLeftSideSpeed > -5) {
         // check if the left motor has already been stopped
@@ -86,7 +111,7 @@ int rc_auto_loop_function_Controller1() {
         Back_Lift.spinTo(0, degrees, false);
         Controller1LeftShoulderControlMotorsStopped = false;
       } else if (Controller1.ButtonL2.pressing()&& !Controller1.ButtonR2.pressing()) {
-        Back_Lift.spinTo(-480, degrees, false);
+        Back_Lift.spinTo(480, degrees, false);
         Controller1LeftShoulderControlMotorsStopped = false;
       } else if (!Controller1LeftShoulderControlMotorsStopped) {
         Back_Lift.stop();
@@ -118,14 +143,14 @@ int rc_auto_loop_function_Controller1() {
         Ring.stop();
       }
 
-      //Set front motor to -160 degrees when left is pressed
+      //Set front motor to 143 degrees when left is pressed
       if(Controller1.ButtonRight.pressing()){
-        Front_Lift.spinTo(-145, degrees);
+        Front_Lift.spinTo(143, degrees);
       } 
 
-      //set Back Motor to -160 degrees when right is pressed
+      //set Back Motor to 143 degrees when right is pressed
       if(Controller1.ButtonLeft.pressing()){
-        Back_Lift.spinTo(-145, degrees);
+        Back_Lift.spinTo(143, degrees);
       }
 
       if(Controller1.ButtonUp.pressing()){
@@ -150,19 +175,8 @@ int rc_auto_loop_function_Controller1() {
         Controller1XBbuttonControlMotorsStopped = true;
       }
 
-      //Macro to drop a goal on the back, reverse 12 inches, rotate 180 degrees
-      //drive into the goal, lift to scoring angle
-      /*
-      if(Controller1.ButtonB.pressing()){
-        Back_Lift.spinTo(-480, degrees, true);
-        Drivetrain.driveFor(forward, 12, inches);
-        Drivetrain.turnFor(180, degrees);
-        Drivetrain.driveFor(forward, 12, inches);
-        Front_Lift.spinTo(-155, degrees);
-        Back_Lift.spinTo(0, degrees, false);
-      }
-      */
-
+      Controller1.ButtonY.pressed(YPRESS);
+      
 
     }
     // wait before repeating the process
