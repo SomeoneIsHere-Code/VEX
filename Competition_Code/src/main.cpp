@@ -331,12 +331,68 @@ void autonomous(void) {
 
   }
   
-  //Right Long Auton
-  if(buttons[6].state){
+  //Left Long Auton
+  if(buttons[5].state){
+    //Setting the drive speed to 75% of the max
+    Drivetrain.setDriveVelocity(75, percent);
+
+    //Setting the turn speed to 60% of the max
+    Drivetrain.setTurnVelocity(60, percent);
+
+    //lower lift
+    Back_Lift.spinTo(480, degrees, true);
+
+    //drive backwards 6 inches
+    Drivetrain.driveFor(reverse, 14, inches);
+
+    //raise front lift to golden angle
+    Back_Lift.spinTo(143, degrees, true);
+
+    //start spinning the Ring motor
+    Ring.spin(forward);
+
+    //waiting for two rings to be scored (tune the timing)
+    wait(100, msec);
+
+    //stop spinning the ring motor
+    Ring.stop();
+
+    //set the drive speed to 75% of its total
+    Drivetrain.setDriveVelocity(75, percent);
+
+    //drive forward 12 inches
+    Drivetrain.driveFor(forward, 12, inches);
+
+    //turn 90 degrees right
+    Drivetrain.turnFor(90, degrees);
+
+    //drive forward 16 inches
+    Drivetrain.driveFor(forward, 16, inches);
+
+    //turn 90 degrees right
+    Drivetrain.turnFor(90, degrees);
+
+    //lower front lift to scoring position
+    Front_Lift.spinTo(460, degrees);
+
+    //drive forward 98 inches
+    Drivetrain.driveFor(forward, 98, degrees);
+
+    //raise front lift to golden angle
+    Front_Lift.spinTo(143, degrees);
+
+    //spin ring motor backwards
+    Ring.spin(reverse);
   }
   
-  
-  if(buttons[7].state){
+  //Right Long Auton
+  if(buttons[6].state){
+    //Setting the drive speed to 75% of the max
+    Drivetrain.setDriveVelocity(75, percent);
+
+    //Setting the turn speed to 60% of the max
+    Drivetrain.setTurnVelocity(60, percent);
+
     //lower lift
     Back_Lift.spinTo(460, degrees, true);
 
@@ -348,20 +404,35 @@ void autonomous(void) {
 
     //start spinning the Ring motor
     Ring.spin(forward);
+
+    //waiting for two rings to be scored (tune the timing)
+    wait(100, msec);
+
+    //stop spinning the ring motor
+    Ring.stop();
     
-    //Setting the drive speed to 75% of the max
-    Drivetrain.setDriveVelocity(75, percent);
+    //turn 90 degrees right
+    Drivetrain.turnFor(90, degrees);
+
+    //drive forward 24 inches
+    Drivetrain.driveFor(forward, 98, inches);
+
+    //lower the front lift to grab a goal
+    Front_Lift.spinTo(460, degrees);
     
     //turn 90 degrees left
     Drivetrain.turnFor(-90, degrees);
+  
+    //drive forward 12 inches
+    Drivetrain.driveFor(forward, 12, inches);
+  
+    //raise front lift to golden angle
+    Front_Lift.spinTo(143, degrees);
 
-    //drive forward 24 inches
-    Drivetrain.driveFor(reverse, 24, inches);
-  
-  
+    //spin the ring motor backwards
+    Ring.spin(reverse);
   
   }
-
 }
 
 /*---------------------------------------------------------------------------*/
