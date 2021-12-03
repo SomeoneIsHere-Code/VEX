@@ -47,8 +47,8 @@ int rc_auto_loop_function_Controller1() {
       // calculate the drivetrain motor velocities from the controller joystick axies
       // left = Axis3
       // right = Axis2
-      int drivetrainLeftSideSpeed = Controller1.Axis3.position();
-      int drivetrainRightSideSpeed = Controller1.Axis2.position();
+      int drivetrainLeftSideSpeed = Controller1.Axis3.position()*.8;
+      int drivetrainRightSideSpeed = Controller1.Axis2.position()*.8;
       
       if(YINT==1){
         drivetrainLeftSideSpeed = drivetrainLeftSideSpeed /2;
