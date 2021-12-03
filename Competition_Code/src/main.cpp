@@ -47,14 +47,14 @@ typedef struct _button {
 // is defined above.  The array size can be extended, so you can have as many buttons as you 
 // wish as long as it fits.
 button buttons[] = {
-    {   30,  30, 60, 60,  false, 0xE00000, 0x0000E0, "1" },
-    {  150,  30, 60, 60,  false, 0x303030, 0xD0D0D0, "2" },
-    {  270,  30, 60, 60,  false, 0x303030, 0xF700FF, "3" },
+    {   30,  30, 60, 60,  false, 0xE00000, 0x0000E0, "Basic" },
+    {  150,  30, 60, 60,  false, 0x303030, 0xD0D0D0, "RS" },
+    {  270,  30, 60, 60,  false, 0x303030, 0xF700FF, "LS" },
     {  390,  30, 60, 60,  false, 0x303030, 0xDDDD00, "4" },
-    {   30, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "5" },
-    {  150, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "6" },
-    {  270, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "7" },
-    {  390, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "8" }
+    {   30, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "Skills" },
+    {  150, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "RL" },
+    {  270, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "LL" },
+    {  390, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "TESTING" }
 };
 
 // forward ref
@@ -233,7 +233,7 @@ void autonomous(void) {
     Ring.spin(forward);
   }
 
-  //right autonomous
+  //RIGHT AUTON               RIGHT AUTON               RIGHT AUTON
   if(buttons[1].state){
     //lower lift
     Back_Lift.spinTo(460, degrees, true);
@@ -262,7 +262,7 @@ void autonomous(void) {
     //lower the front lift to grabbing position
     Front_Lift.spinTo(460, degrees);
 
-    //drive forward 12 inches
+    //drive forward 36 inches
     Drivetrain.driveFor(forward, 36, inches);
 
     //raise front lift to golden angle
@@ -329,7 +329,38 @@ void autonomous(void) {
     Drivetrain.driveFor(reverse, 48, inches);
 
 
-  }  
+  }
+  
+  //Right Long Auton
+  if(buttons[6].state){
+  }
+  
+  
+  if(buttons[7].state){
+    //lower lift
+    Back_Lift.spinTo(460, degrees, true);
+
+    //drive forward 12 inches
+    Drivetrain.driveFor(reverse, 16, inches);
+
+    //raise front lift to golden angle
+    Back_Lift.spinTo(143, degrees, true);
+
+    //start spinning the Ring motor
+    Ring.spin(forward);
+    
+    //Setting the drive speed to 75% of the max
+    Drivetrain.setDriveVelocity(75, percent);
+    
+    //turn 90 degrees left
+    Drivetrain.turnFor(-90, degrees);
+
+    //drive forward 24 inches
+    Drivetrain.driveFor(reverse, 24, inches);
+  
+  
+  
+  }
 
 }
 
