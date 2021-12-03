@@ -344,7 +344,7 @@ void autonomous(void) {
     Back_Lift.spinTo(460, degrees, true);
 
     //drive forward 12 inches
-    Drivetrain.driveFor(reverse, 16, inches);
+    Drivetrain.driveFor(reverse, 20, inches);
 
     //raise front lift to golden angle
     Back_Lift.spinTo(143, degrees, true);
@@ -365,26 +365,27 @@ void autonomous(void) {
     Drivetrain.setDriveVelocity(75, percent);
 
     //drive forward 24 inches
-    Drivetrain.driveFor(forward, 98, inches);
-    
-    //
-    Drivetrain.setDriveVelocity(50, percent);
+    Drivetrain.driveFor(forward, 108, inches);
 
 
     //turn 90 degrees left
     Drivetrain.turnFor(-90, degrees);
-  
-    //drive forward 12 inches
-    Drivetrain.driveFor(forward, 12, inches);
 
-    //lower the front lift to grab a goal
+    //
+    Drivetrain.driveFor(forward, 26, inches);
+
+    //
+    Drivetrain.turnFor(-85, degrees);
+
+    //reverse
+    Drivetrain.driveFor(reverse, 6, inches);
+
+    //claw down
     Front_Lift.spinTo(460, degrees);
 
     //
-    Drivetrain.turnFor(-75, degrees);
+    Drivetrain.driveFor(forward, 16, inches);
 
-    //
-    Drivetrain.driveFor(forward, 6, inches);
   
     //raise front lift to golden angle
     Front_Lift.spinTo(143, degrees);
