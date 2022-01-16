@@ -1,3 +1,11 @@
+/*    UNUSED BUTTONS
+UP - Controller1.ButtonUp
+DOWN - Controller1.ButtonDown
+X - Controller1.ButtonX
+B - Controller1.ButtonB
+Z - Controller1.ButtonZ
+*/
+
 #include "vex.h"
 
 using namespace vex;
@@ -31,9 +39,11 @@ bool Controller1UpDownButtonsControlMotorsStopped = true;
 bool Controller1XBbuttonControlMotorsStopped = true;
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
 bool DrivetrainRNeedsToBeStopped_Controller1 = true;
+
+//Y button variable and function
 int YINT = 0;
 void YPRESS (){
-  YINT = 1;
+  YINT=1;
 
 
 }
@@ -47,8 +57,8 @@ int rc_auto_loop_function_Controller1() {
       // calculate the drivetrain motor velocities from the controller joystick axies
       // left = Axis3
       // right = Axis2
-      int drivetrainLeftSideSpeed = Controller1.Axis3.position()*.8;
-      int drivetrainRightSideSpeed = Controller1.Axis2.position()*.8;
+      int drivetrainLeftSideSpeed = Controller1.Axis3.position();
+      int drivetrainRightSideSpeed = Controller1.Axis2.position();
       
       if(YINT==1){
         drivetrainLeftSideSpeed = drivetrainLeftSideSpeed /2;
@@ -133,9 +143,9 @@ int rc_auto_loop_function_Controller1() {
 
       // check the ButtonR1&&ButtonL1 status to control intake
       if (Controller1.ButtonR1.pressing()&& Controller1.ButtonL1.pressing()){
-        Ring.spin(forward);
-      } else if (Controller1.ButtonR2.pressing() && Controller1.ButtonL2.pressing()){
         Ring.spin(reverse);
+      } else if (Controller1.ButtonR2.pressing() && Controller1.ButtonL2.pressing()){
+        Ring.spin(forward);
       } 
       
       //Stop the Ring Motor when the A button is pressed
@@ -143,36 +153,14 @@ int rc_auto_loop_function_Controller1() {
         Ring.stop();
       }
 
-      //Set front motor to 143 degrees when left is pressed
+      //Set front motor to 138 degrees when left is pressed
       if(Controller1.ButtonRight.pressing()){
-        Front_Lift.spinTo(143, degrees);
+        Front_Lift.spinTo(138, degrees);
       } 
 
-      //set Back Motor to 143 degrees when right is pressed
+      //set Back Motor to 138 degrees when right is pressed
       if(Controller1.ButtonLeft.pressing()){
-        Back_Lift.spinTo(143, degrees);
-      }
-
-      if(Controller1.ButtonUp.pressing()){
-        Front_Lift.spin(forward);
-        Controller1UpDownButtonsControlMotorsStopped = false;
-      } else if(Controller1.ButtonDown.pressing()){
-        Front_Lift.spin(reverse);
-        Controller1UpDownButtonsControlMotorsStopped = false;
-      } else if (!Controller1UpDownButtonsControlMotorsStopped){
-        Front_Lift.stop();
-        Controller1UpDownButtonsControlMotorsStopped = true;
-      }
-
-      if(Controller1.ButtonX.pressing()){
-        Back_Lift.spin(forward);
-        Controller1XBbuttonControlMotorsStopped = false;
-      } else if(Controller1.ButtonB.pressing()){
-        Back_Lift.spin(reverse);
-        Controller1XBbuttonControlMotorsStopped = false;
-      } else if(!Controller1XBbuttonControlMotorsStopped){
-        Back_Lift.stop();
-        Controller1XBbuttonControlMotorsStopped = true;
+        Back_Lift.spinTo(138, degrees);
       }
 
       Controller1.ButtonY.pressed(YPRESS);
