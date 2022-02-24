@@ -12,9 +12,11 @@
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
 // Drivetrain           drivetrain    20, 3, 2, 10, 8 
-// Front_Lift           motor         9               
-// Back_Lift            motor         4               
-// Ring                 motor         7               
+// Front_Lift           motor         9                           
+// Ring                 motor         7  
+// Bar                  motor         4    
+// Claw                 motor         15  
+
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -47,14 +49,14 @@ typedef struct _button {
 // is defined above.  The array size can be extended, so you can have as many buttons as you 
 // wish as long as it fits.
 button buttons[] = {
-    {   30,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "Basic" },
-    {  150,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "R S " },
-    {  270,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "L S " },
-    {  390,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "ELIM" },
-    {   30, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "SKLL" },
-    {  150, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "WP R" },
-    {  270, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "WP L" },
-    {  390, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "TST" }
+    {   30,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "RC alt" },
+    {  150,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "RC " },
+    {  270,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "RC R " },
+    {  390,  30, 60, 60,  false, 0x404040, 0xC0C0C0, "WP" },
+    {   30, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "LC alt" },
+    {  150, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "LC" },
+    {  270, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "LC R" },
+    {  390, 150, 60, 60,  false, 0x404040, 0xC0C0C0, "" }
 };
 
 // forward ref
@@ -168,7 +170,6 @@ displayButtonControls( int index, bool pressed ) {
 }
 
 
-
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -186,20 +187,25 @@ void pre_auton(void) {
   vexcodeInit();
   //makin sure that the lift motors are moving at 100% speed during auton
   Front_Lift.setVelocity(100, percent);
-  Back_Lift.setVelocity(100, percent);
   Ring.setVelocity(100, percent);
+  Bar.setVelocity(100, percent);
+  Claw.setVelocity(100, percent);
 
 
   //setting lift motors so they hold when braking, this makes our lift not slide
   Front_Lift.setBrake(hold);
-  Back_Lift.setBrake(hold);
+  Bar.setBrake(hold);
+  Claw.setBrake(hold);
 
   Front_Lift.setPosition(0, degrees);
-  Back_Lift.setPosition(0, degrees);
+  Bar.setPosition(0, degrees);
 
+  //setting max torque for all motors so there is no need for precise positioning when lowering in auton
+  
+  //TUNE WHEN AT MAC
+  Front_Lift.setMaxTorque(100, percent);
+  Claw.setMaxTorque(95, percent);
 
-  // All activities that occur before the competition starts
-  // Example: clearing encoders, seting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
@@ -220,6 +226,20 @@ We start 9 inches from the wall
 speed is a large consideration
 
 make fast
+
+For multiple auton routes in the same button, add mass comment brackets and a visual separator
+
+
+AUTON STATUS
+
+1(button[0]): test R alt, basic is final
+2(button[1]): tune speed to get middle goal
+3(button[2]): test/tune L Claw
+4(button[3]): test/tune Win Point, find alliance placement spots
+5(button[4]): tune claw close angle, other parts should work if above work
+6(button[5]): ^
+7(button[6]): ^
+8(button[7]): test route, make option that lifts onto platforms if worth/possible
 */
 
 void autonomous(void) {
@@ -227,119 +247,100 @@ void autonomous(void) {
   // then it executes the things in this if loop
   // if not, it moves on to the else loop
   if(buttons[0].state){
-    //lower lift
-    Back_Lift.spinTo(480, degrees, true);
-
-    //drive backwards 16 inches
-    Drivetrain.driveFor(reverse, 16, inches);
-
-    //raise front lift to golden angle
-    Back_Lift.spinTo(140, degrees, true);
-
-    //set the ring motor velocity to max
-    Ring.setVelocity(100, percent);
-
-    //start spinning the Ring motor
-    Ring.spin(forward);
-  }
-
-  //RIGHT AUTON               RIGHT AUTON               RIGHT AUTON
-  if(buttons[1].state){
+    //Raise Claw to open
+    Claw.spinTo(-310, degrees, false);
     //increase turn speed... because speed
     Drivetrain.setTurnVelocity(20, percent);
+    //set drive velocity to 100%
+    Drivetrain.setDriveVelocity(100, percent);
+    //
+    Drivetrain.driveFor(reverse, 56, inches);
+    //
+    Drivetrain.setDriveVelocity(50, percent);
+    //
+    Drivetrain.driveFor(reverse, 4, inches);
+    //
+    Drivetrain.setDriveVelocity(100, percent);
+    //
+    Claw.spinTo(-200, degrees, true);
+    //
+    Front_Lift.spinTo(480, degrees, false);
+    //
+    Drivetrain.turnFor(-60, degrees);
+    //
+    Drivetrain.driveFor(forward, 12, inches);
+    //
+    Front_Lift.spinTo(138, degrees, true);
+    //
+    Drivetrain.turnFor(90, degrees);
+    //
+    Drivetrain.driveFor(forward, 60, inches);
+  }
 
-    //lower back lift
-    Back_Lift.spinTo(480, degrees, false);
-
+  //RIGHT CLAW AUTON               RIGHT CLAW AUTON               RIGHT CLAW AUTON
+  if(buttons[1].state){
+    //raise claw to open position
+    Claw.spinTo(-380, degrees, false);
+    //increase turn speed... because speed
+    Drivetrain.setTurnVelocity(20, percent);
     //setting the drive speed to the max
     Drivetrain.setDriveVelocity(100, percent);
-
     //drive backwards 40 inches
     Drivetrain.driveFor(reverse, 40, inches);
-
     //Lower the drive velocity to 20% for stutter
     Drivetrain.setDriveVelocity(20, percent);
-
     //drive 3 inches to fully reach goal
     Drivetrain.driveFor(reverse, 3, inches);
-
-    //raise front lift to slightly lower angle
-    Back_Lift.spinTo(180, degrees, true);
-    
+    //
+    Claw.spinTo(-160, degrees, true);
     //raise drive velocity to 80%
-    Drivetrain.setDriveVelocity(80, percent);
-
+    Drivetrain.setDriveVelocity(100, percent);
     //lower front lift
     Front_Lift.spinTo(480, degrees, false);
-
     //drive forward to alliance goal
     Drivetrain.driveFor(forward, 28, inches);
-    
     //turn to face alliance goal
-    Drivetrain.turnFor(-90, degrees);
-
+    Drivetrain.turnFor(-85, degrees);
     //lower drive velocity for consistency
-    Drivetrain.setDriveVelocity(60, percent);
-
+    Drivetrain.setDriveVelocity(100, percent);
     //grab alliance goal
     Drivetrain.driveFor(forward, 14, inches);
-    
     //spin front lift to golden angle
-    Front_Lift.spinTo(138, degrees, true);
-    
+    Front_Lift.spinTo(160, degrees, true);
     //start scoring rings
     Ring.spin(reverse);
-    
     //pause to let rings score
-    wait(1500, msec);
-
+    wait(1000, msec);
     //stop scoring rings
     Ring.stop();
-
     //Max out drive velocity to stay in time
     Drivetrain.setDriveVelocity(100, percent);
-
     //Reverse a small amount to give alliance goal space
-    Drivetrain.driveFor(reverse, 8, inches);
-
-    //Lower front lift without stopping
-    Front_Lift.spinTo(480, degrees, false);
-
-    //reverse to make sure we score alliance goal
-    Drivetrain.driveFor(reverse, 40, inches);
-
-    //Turn 90 degrees left to face tall goal
-    Drivetrain.turnFor(-90, degrees);
-
-    //Drive into tall goal
-    Drivetrain.driveFor(forward, 20, inches);
-  
+    Drivetrain.driveFor(reverse, 20, inches);
+    //
+    Claw.spinTo(-380, degrees, true);
+    //
+    Drivetrain.turnFor(45, degrees);
+    //
+    Drivetrain.driveFor(reverse,30, inches);
     //Lower drive speed for stutter
     Drivetrain.setDriveVelocity(20, percent);
-
     //Stutter
-    Drivetrain.driveFor(forward,6, inches);
-
+    Drivetrain.driveFor(reverse,6, inches);
     //Raise front lift to grab tall goal
-    Front_Lift.spinTo(160, degrees, true);
-
+    Claw.spinTo(-160, degrees);
     //Max out drive velocity to stay in time
     Drivetrain.setDriveVelocity(100, percent);
-
     //Drive into home zone
-    Drivetrain.driveFor(reverse, 24, inches);
-
-    //
+    Drivetrain.driveFor(forward, 38, inches);
+    //lower drive velocity
     Drivetrain.setTurnVelocity(50, percent);
 
     //Turn inside home zone to make sure we scored both neutrals
     //this is not strictly necessary, as technically both neutral goals are scored when we finish driving
     //but it makes the scoring a bit more consistent and puts us in a good spot for begining elimination
-    Drivetrain.turnFor(90, degrees);
-
     /*
     Since I have a bit of spare time I'm going to psuedocode the auton out in english
-
     1. Reverse at max speed to the right neutral goal
     2. While you are doing that, lower the back lift
     3. Stop driving
@@ -372,298 +373,167 @@ void autonomous(void) {
     30. Drive forward into home zone
     31. Turn to make sure both goals are scored
     */
-
-
   }
-
-  // LEFT AUTON               LEFT AUTON               LEFT AUTON
+  // Right Rings                      Right Rings           Right Rings
   if(buttons[2].state){
-    //increase turn speed... because speed
+    
+    
+  }
+  //    
+  if(buttons[3].state){
+    //Increase turn velocity because speed
     Drivetrain.setTurnVelocity(20, percent);
-
-    //set drive velocity to 100%
+    //Lower Front Lift 
+    Front_Lift.spinTo(480, degrees);
+    //Max out drive speed
     Drivetrain.setDriveVelocity(100, percent);
-
-    //lower back lift
-    Back_Lift.spinTo(480, degrees, false);
-
-    //drive backwards 51 inches
-    Drivetrain.driveFor(reverse, 51, inches);
-
-    //turn 90 degrees right
-    Drivetrain.turnFor(90, degrees);
-
-    //reverse into neutral goal
-    Drivetrain.driveFor(reverse, 8, inches);
-
-    //lower speed to 20% for stutter
-    Drivetrain.setDriveVelocity(20, percent);
-
-    //fully reverse into neutral goal
-    Drivetrain.driveFor(reverse, 4, inches);
-
-    //spin front lift to golden angle
-    Back_Lift.spinTo(180, degrees);
-
-    //raise drive velocity to max
-    Drivetrain.setDriveVelocity(100, percent);
-
-    //lower front lift
-    Front_Lift.spinTo(480, degrees, false);
-
-    //turn 180 degrees (doesn't matter which direction)
-    Drivetrain.turnFor(180, degrees);
-
-    //drive forward 36 inches
-    Drivetrain.driveFor(forward, 36, inches);
-
+    //Drive forward mostly into goal
+    Drivetrain.driveFor(forward, 12, inches);
     //lower drive speed for stutter
     Drivetrain.setDriveVelocity(20, percent);
-
-    //drive forward 6 inches
-    Drivetrain.driveFor(forward, 6, inches);
-
+    //stutter
+    Drivetrain.driveFor(forward, 4, inches);
     //raise front lift
     Front_Lift.spinTo(160, degrees);
-
-    //max out drive speed
-    Drivetrain.setDriveVelocity(100, percent);
-
-    //drive forward 60 inches
-    Drivetrain.driveFor(reverse, 60, inches);
-
-    //turn 90 degrees left
-    Drivetrain.turnFor(-90, degrees);
-
-    //drive towards home zone
-    Drivetrain.driveFor(reverse, 10, inches);
-
-    //Begin lowering front lift
-    Front_Lift.spinTo(480, degrees, false);
-
-    //drive the rest of the way into home zone
-    Drivetrain.driveFor(reverse, 46, inches);
-
-    //turn to face alliance goal
-    Drivetrain.turnFor(90, degrees);
-
-    //lower lift 
-    Front_Lift.spinTo(470, degrees, true);
-
-    //lower drive velocity for stutter
-    Drivetrain.setDriveVelocity(20, percent);
-
-    //drive into alliance goal
-    Drivetrain.driveFor(forward, 14, inches);
-
-    //raise front lift into scoring position
-    Front_Lift.spinTo(138, degrees);
-
-    //spin ring motor
+    //begin scoring rings
     Ring.spin(reverse);
-
-    /*
-    I'm taking my own advice from comments above and psuedocoding this auton out in text
-
-    1. Reverse to parallel with the neutral goals
-    2. While you are doing that, lower back lift
-    3. Turn to face neutral goals
-    4. Drive into neutral goal
-    5. Raise back lift to secure goal
-    6. Turn 180 degrees so front is facing tall goal
-    7. While you are doing that, lower front lift
-    8. Drive into tall goal
-    9. Raise front lift to secure tall goal
-    10. Reverse a bit
-    11. Turn so back is facing home zone
-    12. Reverse a bit
-    13. Begin lowering front lift
-    14. Turn so front is facing alliance goal
-    15. Drive into alliance goal
-    16. Raise front lift to secure alliance goal
-    17. Start scoring rings
-    */
-  }
-
-
-  if(buttons[3].state){
-  }
-  
-  //SKILLS          SKILLS          SKILLS          SKILLS          SKILLS          
-  if(buttons[4].state){
-  //increase the turn velocity for speed
-  Drivetrain.setTurnVelocity(20, percent);
-
-  //increase drive velocity for speed
-  Drivetrain.setDriveVelocity(100, percent);
-  
-  //lower back lift to scoring position
-  Back_Lift.spinTo(480, degrees, false);
-
-  //drive into central neutral goal
-  Drivetrain.driveFor(reverse, 40, inches);
-
-  //lower drive velocity for stutter
-  Drivetrain.setDriveVelocity(20, percent);
-
-  //stutter
-  Drivetrain.driveFor(reverse, 3, inches);
-
-  //rause back lift to secure goal
-  Back_Lift.spinTo(140, degrees);
-
-  //
-  Drivetrain.turnFor(90, degrees);
-
-  //
-  Drivetrain.driveFor(forward, 20, inches);
-
-  //
-  Drivetrain.setDriveVelocity(20, percent);
-
-  //
-  Drivetrain.driveFor(forward, 4, inches);
-
-  //
-  Front_Lift.spinTo(160, degrees);
-
-  //
-  Drivetrain.turnFor(90, degrees);
-
-  //
-  Drivetrain.setDriveVelocity(100, percent);
-
-  //
-  Drivetrain.driveFor(forward, 44, inches);
-
-  //
-  Front_Lift.spinTo(480, degrees);
-
-  //
-  Drivetrain.turnFor(90, degrees);
-
-  //
-  Drivetrain.driveFor(reverse, 24, inches);
-
-  //
-  Drivetrain.turnFor(180, degrees);
-
-  //
-  Back_Lift.spinTo(480, degrees);
-
-  //
-  Drivetrain.driveFor(forward, 44, inches);
-
-  //
-  Drivetrain.setDriveVelocity(20, percent);
-
-  //
-  Drivetrain.driveFor(forward, 4, inches);
-
-  //
-  Front_Lift.spinTo(140, degrees);
-
-  //
-  Drivetrain.driveFor(reverse, 12, inches);
-
-  //
-  Drivetrain.turnFor(90, degrees);
-
-  //
-  Drivetrain.driveFor(reverse, 8, inches);
-
-  //
-  Drivetrain.setDriveVelocity(20, percent);
-
-  //
-  Drivetrain.driveFor(reverse, 4, inches);
-
-  //
-  Back_Lift.spinTo(140, degrees);
-
-  //
-  Drivetrain.setDriveVelocity(100, percent);
-
-  //
-  Drivetrain.driveFor(reverse, 72, inches);
-
-  //
-  Drivetrain.turnFor(90, degrees);
-
-
-
-  }
-  
-  
-  //Win Point Right        Win Point Right        Win Point Right        
-  if(buttons[5].state){
-    //lower lift
-    Back_Lift.spinTo(480, degrees, true);
-
-    //drive forward 20 inches
-    Drivetrain.driveFor(reverse, 20, inches);
-
-    //raise front lift to golden angle
-    Back_Lift.spinTo(140, degrees, true);
-
-    //start spinning the Ring motor
-    Ring.spin(forward);
-
-    //waiting for two rings to be scored (tune the timing)
-    wait(500, msec);
-
-    //stop spinning the ring motor
+    //wait for a ring to be scored
+    wait(400, msec);
+    //stio scoring rings
     Ring.stop();
-    
-    //turn 90 degrees right
-    Drivetrain.turnFor(85, degrees);
-    
-    //set the drive velocity to the max
-    //Drivetrain.setDriveVelocity(100, percent);
-
-    //drive forward 108 inches (across field)
-    Drivetrain.driveFor(forward, 108, inches);
-
+    //lower front lift
+    Front_Lift.spinTo(480, degrees, false);
+    //reverse slowly to give time for goal to lower
+    Drivetrain.driveFor(reverse, 8, inches);
+    //max out drive velocity
+    Drivetrain.setDriveVelocity(100, percent);
+    //drive the rest of the way
+    Drivetrain.driveFor(reverse, 8, inches);
+    //raise front lift
+    Front_Lift.spinTo(160, degrees, false);
     //turn 90 degrees left
     Drivetrain.turnFor(-90, degrees);
-
-    //decrease drive speed to 50%
-    Drivetrain.setDriveVelocity(50, percent);
-
+    //max out drive velocity
+    Drivetrain.setDriveVelocity(100, percent);
     //drive forward 26 inches
     Drivetrain.driveFor(forward, 26, inches);
-
-    //turn 90 degrees left
-    Drivetrain.turnFor(-90, degrees);
-
-    //reverse 6 inches to give space for claw
-    Drivetrain.driveFor(reverse, 6, inches);
-
+    //turn 90 degrees right
+    Drivetrain.turnFor(90, degrees);
     //lower front lift
-    Front_Lift.spinTo(480, degrees, true);
-
-    //drive forward 16 inches grabbing goal
-    Drivetrain.driveFor(forward, 16, inches);
-
-    //raise front lift to golden angle
-    Front_Lift.spinTo(140, degrees);
-
-    //spin the ring motor backwards
+    Front_Lift.spinTo(480, degrees, false);
+    //drive forwards 92 inches (to alliance goal)
+    Drivetrain.driveFor(forward, 92, inches);
+    //lower drive velocity for stutter
+    Drivetrain.setDriveVelocity(20, percent);
+    //stutter
+    Drivetrain.driveFor(forward, 14, inches);
+    //max out drive velocity
+    Drivetrain.setDriveVelocity(100, percent);
+    //raise front lift to scoring position
+    Front_Lift.spinTo(160, degrees);
+    //score rings
     Ring.spin(reverse);
-  
+    //wait half a second
+    wait(1000, msec);
+    //stop scoring rings
+    Ring.stop();
+
   }
-  
-  //Win Point Left        Win Point Left        Win Point Left        
+
+  //Left Claw Alt          Left Claw Alt          Left Claw Alt
+  if(buttons[4].state){
+    
+  }
+  //Left Claw          Left Claw          Left Claw
+  if(buttons[5].state){
+    //
+    Claw.spinTo(-380, degrees, false);
+    //
+    Drivetrain.setDriveVelocity(100, percent);
+    //
+    Drivetrain.driveFor(reverse, 40, inches);
+    //
+    Drivetrain.setDriveVelocity(20, percent);
+    //
+    Drivetrain.driveFor(reverse, 4, inches);
+    //
+    Drivetrain.setDriveVelocity(100, percent);
+    //
+    Claw.spinTo(-160, degrees);
+    //
+    Bar.spinTo(-80, degrees, true);
+    //
+    Drivetrain.driveFor(forward, 40, inches);
+    //
+    Drivetrain.turnFor(-45, degrees);
+    //
+    Claw.spinTo(-380, degrees);
+    //
+    Bar.spinTo(0, degrees, false);
+    //
+    Drivetrain.turnFor(79, degrees);
+    //
+    Drivetrain.driveFor(reverse, 50, inches);
+    //
+    Drivetrain.setDriveVelocity(20, percent);
+    //
+    Drivetrain.driveFor(reverse, 4, inches);
+    //
+    Drivetrain.setDriveVelocity(100, percent);
+    //
+    Claw.spinTo(-160, degrees);
+    //
+    Front_Lift.spinTo(480, degrees, false);
+    //
+    Drivetrain.driveFor(forward, 48, inches);
+    
+  }
+  //
   if(buttons[6].state){
-  
+    
+  }
+  //WIN POINT         WIN POINT          WIN POINT
+  if(buttons[7].state){
+    //
+    Claw.spinTo(-380, degrees, false);
+    //
+    Front_Lift.spinTo(480, degrees);
+    //
+    Drivetrain.driveFor(forward, 12, inches);
+    //
+    Front_Lift.spinTo(140, degrees);
+    //
+    Drivetrain.driveFor(forward, 36, inches);
+    //
+    Drivetrain.turnFor(90, degrees);
+    //
+    Drivetrain.driveFor(reverse, 24, inches);
+    //
+    Claw.spinTo(-160, degrees);
+    //
+    Drivetrain.turnFor(90, degrees);
+    //
+    Drivetrain.driveFor(reverse, 48, inches);
+    //
+    Drivetrain.turnFor(90, degrees);
+    //
+    Front_Lift.spinTo(480, degrees, false);
+    //
+    Drivetrain.driveFor(reverse, 24, inches);
+    //
+    Drivetrain.turnFor(-90, degrees);
+    //
+    Drivetrain.driveFor(reverse, 24, inches);
+    //
+    Drivetrain.turnFor(90, degrees);
+    //
+    Drivetrain.driveFor(forward, 24, inches);
+    //
+    Front_Lift.spinTo(140, degrees);
+    
 
-}
 
-//TESTING         TESTING         TESTING         TESTING         TESTING         
-if(buttons[7].state){
-  
-}
- 
+  }
 }
 
 
@@ -676,6 +546,22 @@ if(buttons[7].state){
 /*                                                                           */
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
+
+/*
+Button Controlls 
+
+Up - Raise 4 bar
+Down - Lower 4 bar
+Left - Compress piston
+Right - Front lift to golden angle
+
+X - 
+B - 
+Y - Brake
+A - 
+
+*/
+
 
 void usercontrol(void) {
   // User control code here, inside the loop

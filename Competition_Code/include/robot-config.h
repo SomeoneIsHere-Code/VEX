@@ -8,6 +8,9 @@ extern smartdrive Drivetrain;
 extern motor Front_Lift;
 extern motor Back_Lift;
 extern motor Ring;
+extern motor Bar;
+extern motor Claw;
+
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

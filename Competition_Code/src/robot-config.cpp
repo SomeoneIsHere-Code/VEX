@@ -1,9 +1,9 @@
 /*    UNUSED BUTTONS
-UP - Controller1.ButtonUp
-DOWN - Controller1.ButtonDown
 X - Controller1.ButtonX
 B - Controller1.ButtonB
-Z - Controller1.ButtonZ
+A - Controller1.ButtonZ
+
+
 */
 
 #include "vex.h"
@@ -16,7 +16,10 @@ using code = vision::code;
 brain  Brain;
 
 // VEXcode device constructors
+
+// Drive motors
 controller Controller1 = controller(primary);
+controller Controller2 = controller(partner);
 motor leftMotorA = motor(PORT20, ratio18_1, false);
 motor leftMotorB = motor(PORT3, ratio18_1, false);
 motor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);
@@ -25,9 +28,16 @@ motor rightMotorB = motor(PORT10, ratio18_1, true);
 motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
 inertial DrivetrainInertial = inertial(PORT8);
 smartdrive Drivetrain = smartdrive(LeftDriveSmart, RightDriveSmart, DrivetrainInertial, 319.19, 320, 40, mm, 1);
+motor Bar = motor(PORT4, ratio36_1, false);
+
+// Old architecture
 motor Front_Lift = motor(PORT9, ratio36_1, false);
-motor Back_Lift = motor(PORT4, ratio36_1, false);
 motor Ring = motor(PORT7, ratio18_1, true);
+
+
+// 4bar motors
+
+motor Claw = motor(PORT6, ratio36_1, false);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable
@@ -117,22 +127,22 @@ int rc_auto_loop_function_Controller1() {
         RightDriveSmart.spin(forward);
       }
       // check the ButtonL1/ButtonL2 status to control Back_Lift
-      if (Controller1.ButtonL1.pressing()&& !Controller1.ButtonR1.pressing()) {
-        Back_Lift.spinTo(0, degrees, false);
+      if ((Controller1.ButtonL1.pressing()&& !Controller1.ButtonR1.pressing())||(Controller2.ButtonL1.pressing()&&!Controller2.ButtonR1.pressing()) ){
+        Bar.spinTo(-900,degrees, false);
         Controller1LeftShoulderControlMotorsStopped = false;
-      } else if (Controller1.ButtonL2.pressing()&& !Controller1.ButtonR2.pressing()) {
-        Back_Lift.spinTo(480, degrees, false);
+      } else if ((Controller1.ButtonL2.pressing()&& !Controller1.ButtonR2.pressing())||Controller2.ButtonL2.pressing()) {
+        Bar.spinTo(0, degrees, false);
         Controller1LeftShoulderControlMotorsStopped = false;
       } else if (!Controller1LeftShoulderControlMotorsStopped) {
-        Back_Lift.stop();
+        Bar.stop();
         // set the toggle so that we don't constantly tell the motor to stop when the buttons are released
         Controller1LeftShoulderControlMotorsStopped = true;
       }
       // check the ButtonR1/ButtonR2 status to control Front_Lift
-      if (Controller1.ButtonR1.pressing()&& !Controller1.ButtonL1.pressing()) {
+      if ((Controller1.ButtonR1.pressing()&& !Controller1.ButtonL1.pressing())||(Controller2.ButtonR1.pressing()& !Controller2.ButtonL1.pressing())) {
         Front_Lift.spinTo(0,degrees, false);
         Controller1RightShoulderControlMotorsStopped = false;
-      } else if (Controller1.ButtonR2.pressing( )&& !Controller1.ButtonL2.pressing()) {
+      } else if ((Controller1.ButtonR2.pressing()&& !Controller1.ButtonL2.pressing())||Controller2.ButtonR2.pressing()) {
         Front_Lift.spinTo(480, degrees, false);
         Controller1RightShoulderControlMotorsStopped = false;
       } else if (!Controller1RightShoulderControlMotorsStopped) {
@@ -141,15 +151,29 @@ int rc_auto_loop_function_Controller1() {
         Controller1RightShoulderControlMotorsStopped = true;
       }
 
+      //If up button is pressed, raise 4 bar lift
+      //If down button is pressed, lower 4 bar lift
+      if(Controller1.ButtonUp.pressing()||Controller2.ButtonUp.pressing()){
+        Claw.spinTo(-380, degrees, false);
+        Controller1UpDownButtonsControlMotorsStopped = false;
+      } else if((Controller1.ButtonDown.pressing()||Controller2.ButtonDown.pressing())){
+        Claw.spinTo(0, degrees, false);
+        Controller1UpDownButtonsControlMotorsStopped = false;
+      } else if (!Controller1UpDownButtonsControlMotorsStopped){
+        Claw.stop(); 
+        // set the toggle so that we don't constantly tell the motor to stop when the buttons are released
+        Controller1UpDownButtonsControlMotorsStopped = true;
+      }
+
       // check the ButtonR1&&ButtonL1 status to control intake
-      if (Controller1.ButtonR1.pressing()&& Controller1.ButtonL1.pressing()){
+      if ((Controller1.ButtonR1.pressing()&& Controller1.ButtonL1.pressing())||(Controller2.ButtonR1.pressing()&&Controller2.ButtonL1.pressing())){
         Ring.spin(reverse);
-      } else if (Controller1.ButtonR2.pressing() && Controller1.ButtonL2.pressing()){
+      } else if ((Controller1.ButtonR2.pressing() && Controller1.ButtonL2.pressing())||(Controller2.ButtonR2.pressing()&&Controller2.ButtonL2.pressing())){
         Ring.spin(forward);
       } 
       
       //Stop the Ring Motor when the A button is pressed
-      if (Controller1.ButtonA.pressing()){
+      if ((Controller1.ButtonA.pressing())||Controller2.ButtonA.pressing()){
         Ring.stop();
       }
 
@@ -158,12 +182,8 @@ int rc_auto_loop_function_Controller1() {
         Front_Lift.spinTo(138, degrees);
       } 
 
-      //set Back Motor to 138 degrees when right is pressed
-      if(Controller1.ButtonLeft.pressing()){
-        Back_Lift.spinTo(138, degrees);
-      }
-
       Controller1.ButtonY.pressed(YPRESS);
+      Controller1.ButtonX.pressed()
       
 
     }
